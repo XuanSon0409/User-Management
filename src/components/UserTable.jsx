@@ -1,6 +1,7 @@
-import { Modal, message, } from "antd";
-import { ExclamationCircleOutlined } from '@ant-design/icons'
+import { Modal, message } from "antd";
+import { ExclamationCircleOutlined } from "@ant-design/icons";
 import UserRow from "./UserRow";
+
 export default function UserTable({ users, onDelete, onEdit }) {
     const showDeleteConfirm = (id) => {
         Modal.confirm({
@@ -20,24 +21,24 @@ export default function UserTable({ users, onDelete, onEdit }) {
         });
     };
 
-
-
     return (
-        <div className="max-w-[90%] mx-auto pt-10 bg-gray-100 min-h-screen">
-            <div className="bg-white rounded-lg shadow-md overflow-hidden">
-                <h1 className="text-xl !font-semibold px-6 py-4 border-b border-gray-200 !mb-0">
+        <div className="max-w-screen-lg mx-auto pt-9 mt-1 pb-20 px-4 sm:px-6 bg-gray-100 min-h-screen">
+            <div className="bg-white rounded-xl shadow-md overflow-hidden">
+                {/* Header */}
+                <h1 className="text-xl font-semibold px-6 py-5 border-b border-gray-200">
                     User List
                 </h1>
 
-
-                <div className="hidden md:grid grid-cols-12 gap-4 px-6 py-3 text-sm font-semibold bg-gray-50 text-gray-500 ">
-                    <div className="col-span-3">NAME</div>
-                    <div className="col-span-3">EMAIL</div>
-                    <div className="col-span-2">ROLE</div>
-                    <div className="col-span-2">STATUS</div>
-                    <div className="col-span-2">ACTIONS</div>
+                {/* Table Header (hiển thị từ md trở lên) */}
+                <div className="hidden md:grid grid-cols-12 gap-4 px-6 py-3 text-sm font-semibold bg-gray-50 text-gray-600 uppercase tracking-wide border-b border-gray-100">
+                    <div className="col-span-3">Name</div>
+                    <div className="col-span-3">Email</div>
+                    <div className="col-span-2">Role</div>
+                    <div className="col-span-2">Status</div>
+                    <div className="col-span-2 text-center">Actions</div>
                 </div>
 
+                {/* Content */}
                 {users.length === 0 ? (
                     <div className="text-center text-gray-500 text-sm py-10">
                         No users.
