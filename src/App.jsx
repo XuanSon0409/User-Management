@@ -2,10 +2,7 @@ import React, { useEffect, useState } from "react";
 import SearchBar from "./components/SearchBar";
 import UserTable from "./components/UserTable";
 import UserForm from "./components/UserForm";
-import { message } from "antd";
-import { getUsersFromStorage, addUserToStorage, deleteUserFromStorage, } from "./utils/storage";
-
-
+import { getUsersFromStorage, addUserToStorage, deleteUserFromStorage } from "./utils/storage";
 
 export default function App() {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -29,17 +26,15 @@ export default function App() {
   const handleAddUser = (newUser) => {
     const latestUsers = getUsersFromStorage();
 
-
     if (editingUser) {
       const exists = latestUsers.some((u) => u.id === newUser.id);
       if (!exists) {
         setIsModalOpen(false);
         setEditingUser(null);
-        toast.error("User has been deleted. Cannot update.");
         setTimeout(() => {
           window.location.reload();
         }, 2000);
-        return;
+        return false;
       }
 
       const updatedUsers = latestUsers.map((u) =>
@@ -48,16 +43,18 @@ export default function App() {
 
       localStorage.setItem("users", JSON.stringify(updatedUsers));
       setUsers(updatedUsers);
+      setIsModalOpen(false);
+      setEditingUser(null);
+      return true;
     } else {
       const updatedUsers = [...latestUsers, newUser];
       localStorage.setItem("users", JSON.stringify(updatedUsers));
       setUsers(updatedUsers);
+      setIsModalOpen(false);
+      setEditingUser(null);
+      return true;
     }
-
-    setIsModalOpen(false);
-    setEditingUser(null);
   };
-
 
   const handleDeleteUser = (userId) => {
     try {
@@ -71,7 +68,6 @@ export default function App() {
   const normalize = (str) => str.trim();
   const filteredUsers = users.filter((user) => {
     const search = normalize(debouncedSearchTerm);
-
     return (
       normalize(user.name).includes(search) ||
       normalize(user.email).includes(search)
@@ -85,7 +81,7 @@ export default function App() {
   };
 
   return (
-    <div className=" bg-gray-100 ">
+    <div className="bg-gray-100">
       <SearchBar
         onAddUser={() => setIsModalOpen(true)}
         searchTerm={searchTerm}
@@ -104,7 +100,8 @@ export default function App() {
       <UserForm
         isModalOpen={isModalOpen}
         onClose={() => {
-          setIsModalOpen(false), setEditingUser(null);
+          setIsModalOpen(false);
+          setEditingUser(null);
         }}
         onAddUser={handleAddUser}
         initialValues={editingUser}
