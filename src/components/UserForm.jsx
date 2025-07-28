@@ -3,7 +3,13 @@ import { Modal, Form, Input, Select, Button, message } from "antd";
 
 const { Option } = Select;
 
-export default function UserForm({ isModalOpen, onClose, onAddUser, initialValues, checkEmailExists, }) {
+export default function UserForm({
+    isModalOpen,
+    onClose,
+    onAddUser,
+    initialValues,
+    checkEmailExists,
+}) {
     const [form] = Form.useForm();
     const [imageBase64, setImageBase64] = useState(null);
 
@@ -19,9 +25,7 @@ export default function UserForm({ isModalOpen, onClose, onAddUser, initialValue
         if (!file) return;
 
         const reader = new FileReader();
-        reader.onload = () => {
-            setImageBase64(reader.result);
-        };
+        reader.onload = () => setImageBase64(reader.result);
         reader.readAsDataURL(file);
     };
 
@@ -31,11 +35,10 @@ export default function UserForm({ isModalOpen, onClose, onAddUser, initialValue
             return;
         }
 
-
         const trimmedValues = {
             ...values,
-            name: values.name.replace(/\s+/g, ' ').trim(),
-            email: values.email.replace(/\s+/g, ' ').trim(),
+            name: values.name.replace(/\s+/g, " ").trim(),
+            email: values.email.replace(/\s+/g, " ").trim(),
             role: values.role.trim(),
             status: values.status.trim(),
         };
@@ -48,15 +51,18 @@ export default function UserForm({ isModalOpen, onClose, onAddUser, initialValue
         };
 
         try {
-            await onAddUser(newUser);
-            form.resetFields();
-            setImageBase64(null);
-            message.success(isEdit ? "Updated Successfully" : "Added Successfully");
+            const success = await onAddUser(newUser);
+            if (success) {
+                form.resetFields();
+                setImageBase64(null);
+                message.success(isEdit ? "Updated Successfully" : "Added Successfully");
+            } else {
+                message.error(isEdit ? "Update failed: user does not exist" : "Failed to add user");
+            }
         } catch (error) {
             message.error(error.message || "Failed to save user");
         }
     };
-
 
     const handleCancel = () => {
         onClose();
@@ -72,7 +78,12 @@ export default function UserForm({ isModalOpen, onClose, onAddUser, initialValue
             footer={null}
             destroyOnHidden
         >
-            <Form form={form} layout="vertical" onFinish={handleFinish}>
+            <Form
+                form={form}
+                layout="vertical"
+                onFinish={handleFinish}
+                className="space-y-4"
+            >
                 <Form.Item label="Name" name="name" rules={[{ required: true }]}>
                     <Input placeholder="Enter full name" />
                 </Form.Item>
@@ -86,14 +97,11 @@ export default function UserForm({ isModalOpen, onClose, onAddUser, initialValue
                         {
                             validator: (_, value) => {
                                 if (!value || !checkEmailExists) return Promise.resolve();
-
                                 const isEdit = !!initialValues;
                                 const emailChanged = value !== initialValues?.email;
-
                                 if ((!isEdit || emailChanged) && checkEmailExists(value)) {
                                     return Promise.reject(new Error("Email already exists"));
                                 }
-
                                 return Promise.resolve();
                             },
                         },
@@ -102,85 +110,79 @@ export default function UserForm({ isModalOpen, onClose, onAddUser, initialValue
                     <Input placeholder="example@email.com" />
                 </Form.Item>
 
-                <Form.Item label="Role" name="role" rules={[{ required: true }]}>
-                    <Select placeholder="Select role">
-                        <Option value="Admin">Admin</Option>
-                        <Option value="User">User</Option>
-                        <Option value="Moderator">Moderator</Option>
-                    </Select>
-                </Form.Item>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <Form.Item label="Role" name="role" rules={[{ required: true }]}>
+                        <Select placeholder="Select role">
+                            <Option value="Admin">Admin</Option>
+                            <Option value="User">User</Option>
+                            <Option value="Moderator">Moderator</Option>
+                        </Select>
+                    </Form.Item>
 
-                <Form.Item label="Status" name="status" rules={[{ required: true }]}>
-                    <Select placeholder="Select status">
-                        <Option value="Active">Active</Option>
-                        <Option value="Inactive">Inactive</Option>
-                    </Select>
-                </Form.Item>
+                    <Form.Item label="Status" name="status" rules={[{ required: true }]}>
+                        <Select placeholder="Select status">
+                            <Option value="Active">Active</Option>
+                            <Option value="Inactive">Inactive</Option>
+                        </Select>
+                    </Form.Item>
+                </div>
 
                 <Form.Item label="Avatar" required>
-                    <div className="flex items-center justify-center w-full">
-                        <div className="w-full h-64">
-                            {!imageBase64 ? (
-                                <label
-                                    htmlFor="dropzone-file"
-                                    className="flex flex-col items-center justify-center w-full h-full border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100"
-                                >
-                                    <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                                        <svg
-                                            className="w-8 h-8 mb-4 text-gray-500"
-                                            aria-hidden="true"
-                                            xmlns="http://www.w3.org/2000/svg"
-                                            fill="none"
-                                            viewBox="0 0 20 16"
-                                        >
-                                            <path
-                                                stroke="currentColor"
-                                                strokeLinecap="round"
-                                                strokeLinejoin="round"
-                                                strokeWidth="2"
-                                                d="M13 13h3a3 3 0 0 0 0-6h-.025A5.56 5.56 0 0 0 16 6.5 5.5 5.5 0 0 0 5.207 5.021C5.137 5.017 5.071 5 5 5a4 4 0 0 0 0 8h2.167M10 15V6m0 0L8 8m2-2 2 2"
-                                            />
-                                        </svg>
-                                        <p className="mb-2 text-sm text-gray-500">
-                                            <span className="font-semibold">Click to upload</span> or
-                                            drag and drop
-                                        </p>
-                                        <p className="text-xs text-gray-500">
-                                            SVG, PNG, JPG or GIF (max 800x400px)
-                                        </p>
-                                    </div>
-                                    <input
-                                        id="dropzone-file"
-                                        type="file"
-                                        accept="image/*"
-                                        className="hidden"
-                                        onChange={handleFileChange}
-                                    />
-                                </label>
-                            ) : (
-                                <div className="flex flex-col items-center justify-center h-full gap-4">
-                                    <img
-                                        src={imageBase64}
-                                        alt="Preview"
-                                        className="h-24 w-24 object-cover rounded-full border"
-                                    />
-                                    <button
-                                        type="button"
-                                        onClick={() => setImageBase64(null)}
-                                        className="text-sm text-red-500 hover:underline cursor-pointer"
+                    <div className="w-full">
+                        {!imageBase64 ? (
+                            <label
+                                htmlFor="dropzone-file"
+                                className="flex flex-col items-center justify-center w-full h-52 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100 transition"
+                            >
+                                <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                                    <svg
+                                        className="w-8 h-8 mb-3 text-gray-400"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        strokeWidth="2"
+                                        viewBox="0 0 24 24"
+                                        xmlns="http://www.w3.org/2000/svg"
                                     >
-                                        Remove image
-                                    </button>
+                                        <path
+                                            strokeLinecap="round"
+                                            strokeLinejoin="round"
+                                            d="M7 16v-4m0 0l-3 3m3-3l3 3M17 8v4m0 0l3-3m-3 3l-3-3m-2 10a9 9 0 100-18 9 9 0 000 18z"
+                                        />
+                                    </svg>
+                                    <p className="text-sm text-gray-500">
+                                        <span className="font-medium">Click to upload</span> or drag and drop
+                                    </p>
+                                    <p className="text-xs text-gray-400">PNG, JPG, JPEG up to 2MB</p>
                                 </div>
-                            )}
-                        </div>
+                                <input
+                                    id="dropzone-file"
+                                    type="file"
+                                    accept="image/*"
+                                    className="hidden"
+                                    onChange={handleFileChange}
+                                />
+                            </label>
+                        ) : (
+                            <div className="flex flex-col items-center gap-3">
+                                <img
+                                    src={imageBase64}
+                                    alt="Preview"
+                                    className="w-24 h-24 object-cover rounded-full border"
+                                />
+                                <button
+                                    type="button"
+                                    onClick={() => setImageBase64(null)}
+                                    className="text-sm text-red-500 hover:underline"
+                                >
+                                    Remove image
+                                </button>
+                            </div>
+                        )}
                     </div>
                 </Form.Item>
 
-                <Form.Item className=" text-right ">
-                    <Button onClick={handleCancel} className="mr-2">
-                        Cancel
-                    </Button>
+                <Form.Item className="flex justify-end gap-2">
+                    <Button onClick={handleCancel}>Cancel</Button>
                     <Button type="primary" htmlType="submit">
                         {initialValues ? "Update" : "Save"}
                     </Button>
