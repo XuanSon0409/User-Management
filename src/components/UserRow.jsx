@@ -1,5 +1,5 @@
 import { Button } from "antd";
-import { EditOutlined, DeleteOutlined } from "@ant-design/icons";
+import { EditFilled, DeleteFilled } from "@ant-design/icons";
 
 export default function UserRow({ user, onEdit, onDeleteConfirm }) {
     const getRoleStyle = (role) => {
@@ -10,7 +10,6 @@ export default function UserRow({ user, onEdit, onDeleteConfirm }) {
                 return "bg-purple-100 text-purple-800";
             case "Moderator":
                 return "bg-green-100 text-green-800";
-
             default:
                 return "bg-gray-200 text-gray-600";
         }
@@ -27,52 +26,28 @@ export default function UserRow({ user, onEdit, onDeleteConfirm }) {
         }
     };
 
-    const handleFinish = (values) => {
-        const trimmedValues = {
-            ...values,
-            name: values.name.trim(),
-            email: values.email.trim(),
-            role: values.role.trim(),
-            status: values.status.trim(),
-        };
-
-        if (initialValues) {
-            // Chế độ Edit
-            onAddUser({ ...initialValues, ...trimmedValues });
-        } else {
-            // Chế độ Create
-            onAddUser(trimmedValues);
-        }
-
-        form.resetFields();
-        setImageBase64("");
-        onClose();
-    };
-
     return (
-        <div className="border-b border-gray-200 px-4 py-4 md:grid md:grid-cols-12 md:gap-4 hover:bg-gray-50">
-            {/* Name + Avatar */}
-            <div className="flex items-center col-span-3">
+        <div className="border-b border-gray-200 p-4 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-12 gap-4 items-center hover:bg-gray-50 transition-all">
+            {/* Avatar + Name + Email (on small screen) */}
+            <div className="flex items-center gap-3 md:col-span-3">
                 <img
                     src={user.avatar || `https://i.pravatar.cc/100?u=${user.email}`}
                     alt={user.name}
-                    className="h-8 w-8 rounded-full mr-3"
+                    className="h-10 w-10 rounded-full border object-cover"
                 />
-                <div className="min-w-0"> {/* để truncate hoạt động trong flex */}
-                    <div className="text-sm font-medium text-gray-900 truncate max-w-[150px]">
-                        {user.name}
-                    </div>
-                    <div className="md:hidden text-xs text-gray-500">{user.email}</div>
+                <div className="min-w-0">
+                    <p className="text-sm font-medium text-gray-900 truncate max-w-[150px]">{user.name}</p>
+                    <p className="text-xs text-gray-500 md:hidden truncate">{user.email}</p>
                 </div>
             </div>
 
-            {/* Email */}
-            <div className="hidden md:block col-span-3 text-sm text-gray-600">
+            {/* Email (hidden on small screens) */}
+            <div className="hidden md:block md:col-span-3 text-sm text-gray-600 truncate">
                 {user.email}
             </div>
 
             {/* Role */}
-            <div className="mt-2 md:mt-0 col-span-2">
+            <div className="md:col-span-2">
                 <span
                     className={`inline-block px-2 py-1 text-xs font-semibold rounded-full ${getRoleStyle(
                         user.role
@@ -83,7 +58,7 @@ export default function UserRow({ user, onEdit, onDeleteConfirm }) {
             </div>
 
             {/* Status */}
-            <div className="mt-2 md:mt-0 col-span-2">
+            <div className="md:col-span-2">
                 <span
                     className={`inline-block px-2 py-1 text-xs font-semibold rounded-full ${getStatusStyle(
                         user.status
@@ -94,12 +69,13 @@ export default function UserRow({ user, onEdit, onDeleteConfirm }) {
             </div>
 
             {/* Actions */}
-            <div className="mt-3 md:mt-0 col-span-2 flex gap-2">
+            <div className="flex gap-2 md:col-span-2 flex-wrap justify-start md:justify-end">
                 <Button
                     type="primary"
                     size="small"
-                    icon={<EditOutlined />}
+                    icon={<EditFilled />}
                     onClick={() => onEdit(user)}
+                    className="flex items-center"
                 >
                     Edit
                 </Button>
@@ -107,8 +83,9 @@ export default function UserRow({ user, onEdit, onDeleteConfirm }) {
                     type="primary"
                     danger
                     size="small"
-                    icon={<DeleteOutlined />}
+                    icon={<DeleteFilled />}
                     onClick={() => onDeleteConfirm(user.id)}
+                    className="flex items-center"
                 >
                     Delete
                 </Button>
@@ -116,5 +93,3 @@ export default function UserRow({ user, onEdit, onDeleteConfirm }) {
         </div>
     );
 }
-
-
