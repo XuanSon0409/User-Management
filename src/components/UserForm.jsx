@@ -181,8 +181,8 @@ export default function UserForm({
                     </div>
                 </Form.Item>
 
-                <Form.Item className="flex justify-end gap-2">
-                    <Button onClick={handleCancel}>Cancel</Button>
+                <Form.Item className="flex justify-end">
+                    <Button onClick={handleCancel} style={{ marginRight: 12 }}>Cancel</Button>
                     <Button type="primary" htmlType="submit">
                         {initialValues ? "Update" : "Save"}
                     </Button>

@@ -5,11 +5,11 @@ export default function UserRow({ user, onEdit, onDeleteConfirm }) {
     const getRoleStyle = (role) => {
         switch (role) {
             case "Admin":
-                return "bg-blue-100 text-blue-800";
+                return "bg-purple-100 text-purple-700";
             case "User":
-                return "bg-purple-100 text-purple-800";
+                return "bg-blue-100 text-blue-700";
             case "Moderator":
-                return "bg-green-100 text-green-800";
+                return "bg-green-100 text-green-700";
             default:
                 return "bg-gray-200 text-gray-600";
         }
@@ -18,64 +18,54 @@ export default function UserRow({ user, onEdit, onDeleteConfirm }) {
     const getStatusStyle = (status) => {
         switch (status) {
             case "Active":
-                return "bg-green-100 text-green-800";
+                return "bg-green-100 text-green-700";
             case "Inactive":
-                return "bg-yellow-100 text-yellow-800";
+                return "bg-yellow-100 text-yellow-700";
             default:
                 return "bg-gray-200 text-gray-600";
         }
     };
 
     return (
-        <div className="border-b border-gray-200 p-4 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-12 gap-4 items-center hover:bg-gray-50 transition-all">
-            {/* Avatar + Name + Email (on small screen) */}
-            <div className="flex items-center gap-3 md:col-span-3">
+        <div className="grid md:grid-cols-20 grid-cols-1 gap-y-2 px-4 py-4 border-b border-gray-200 hover:bg-gray-50 transition-all">
+            {/* Avatar + Name */}
+            <div className="md:col-span-5 flex items-center gap-3">
                 <img
                     src={user.avatar || `https://i.pravatar.cc/100?u=${user.email}`}
                     alt={user.name}
                     className="h-10 w-10 rounded-full border object-cover"
                 />
-                <div className="min-w-0">
-                    <p className="text-sm font-medium text-gray-900 truncate max-w-[150px]">{user.name}</p>
-                    <p className="text-xs text-gray-500 md:hidden truncate">{user.email}</p>
-                </div>
+                <span className="text-sm font-medium text-gray-900">{user.name}</span>
             </div>
 
-            {/* Email (hidden on small screens) */}
-            <div className="hidden md:block md:col-span-3 text-sm text-gray-600 truncate">
+            {/* Email */}
+            <div className="md:col-span-5 text-sm text-gray-600 truncate md:ml-0 ml-12 md:flex md:justify-start md:items-center md:text-center">
                 {user.email}
             </div>
 
             {/* Role */}
-            <div className="md:col-span-2">
-                <span
-                    className={`inline-block px-2 py-1 text-xs font-semibold rounded-full ${getRoleStyle(
-                        user.role
-                    )}`}
-                >
+            <div className="md:col-span-3 text-sm md:ml-0 ml-12 md:flex md:justify-start md:items-center md:text-center">
+                <span className={`inline-block px-2 py-1 text-xs font-semibold rounded-full ${getRoleStyle(user.role)}`}>
                     {user.role}
                 </span>
             </div>
 
             {/* Status */}
-            <div className="md:col-span-2">
-                <span
-                    className={`inline-block px-2 py-1 text-xs font-semibold rounded-full ${getStatusStyle(
-                        user.status
-                    )}`}
-                >
+            <div className="md:col-span-3 text-sm md:ml-0 ml-12 md:flex md:justify-start md:items-center md:text-center">
+                <span className={`inline-block px-2 py-1 text-xs font-semibold rounded-full ${getStatusStyle(user.status)}`}>
                     {user.status}
                 </span>
             </div>
 
+
+
             {/* Actions */}
-            <div className="flex gap-2 md:col-span-2 flex-wrap justify-start md:justify-end">
+            <div className="md:col-span-4 flex md:justify-start justify-end items-center gap-2 md:ml-0 ml-12">
                 <Button
                     type="primary"
                     size="small"
                     icon={<EditFilled />}
                     onClick={() => onEdit(user)}
-                    className="flex items-center"
                 >
                     Edit
                 </Button>
@@ -85,7 +75,6 @@ export default function UserRow({ user, onEdit, onDeleteConfirm }) {
                     size="small"
                     icon={<DeleteFilled />}
                     onClick={() => onDeleteConfirm(user.id)}
-                    className="flex items-center"
                 >
                     Delete
                 </Button>
