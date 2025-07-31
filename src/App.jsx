@@ -2,7 +2,12 @@ import React, { useEffect, useState } from "react";
 import SearchBar from "./components/SearchBar";
 import UserTable from "./components/UserTable";
 import UserForm from "./components/UserForm";
-import { getUsersFromStorage, addUserToStorage, deleteUserFromStorage } from "./utils/storage";
+import {
+  getUsersFromStorage,
+  addUserToStorage,
+  deleteUserFromStorage,
+  updateUserInStorage,
+} from "./utils/storage";
 
 export default function App() {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -13,43 +18,44 @@ export default function App() {
 
   useEffect(() => {
     setUsers(getUsersFromStorage());
+    const handleStorageChange = (event) => {
+      if (event.key === "users") {
+        setUsers(getUsersFromStorage());
+      }
+    };
+
+    window.addEventListener("storage", handleStorageChange);
+
+    return () => {
+      window.removeEventListener("storage", handleStorageChange);
+    };
   }, []);
 
   useEffect(() => {
     const timer = setTimeout(() => {
       setDebouncedSearchTerm(searchTerm);
     }, 300);
-
     return () => clearTimeout(timer);
   }, [searchTerm]);
 
   const handleAddUser = (newUser) => {
-    const latestUsers = getUsersFromStorage();
-
     if (editingUser) {
-      const exists = latestUsers.some((u) => u.id === newUser.id);
-      if (!exists) {
+      const success = updateUserInStorage(newUser);
+      if (!success) {
+        alert("User ID not found. Reloading...");
         setIsModalOpen(false);
         setEditingUser(null);
-        setTimeout(() => {
-          window.location.reload();
-        }, 2000);
+        setUsers(getUsersFromStorage());
         return false;
       }
 
-      const updatedUsers = latestUsers.map((u) =>
-        u.id === newUser.id ? newUser : u
-      );
-
-      localStorage.setItem("users", JSON.stringify(updatedUsers));
-      setUsers(updatedUsers);
+      setUsers(getUsersFromStorage());
       setIsModalOpen(false);
       setEditingUser(null);
       return true;
     } else {
-      const updatedUsers = [...latestUsers, newUser];
-      localStorage.setItem("users", JSON.stringify(updatedUsers));
-      setUsers(updatedUsers);
+      addUserToStorage(newUser);
+      setUsers(getUsersFromStorage());
       setIsModalOpen(false);
       setEditingUser(null);
       return true;
@@ -57,12 +63,11 @@ export default function App() {
   };
 
   const handleDeleteUser = (userId) => {
-    try {
-      deleteUserFromStorage(userId);
-      setUsers(getUsersFromStorage());
-    } catch (error) {
-      throw error;
+    const success = deleteUserFromStorage(userId);
+    if (!success) {
+      alert("User ID not found. Reloading...");
     }
+    setUsers(getUsersFromStorage());
   };
 
   const normalize = (str) => str.trim();
@@ -102,6 +107,7 @@ export default function App() {
         onClose={() => {
           setIsModalOpen(false);
           setEditingUser(null);
+          setUsers(getUsersFromStorage());
         }}
         onAddUser={handleAddUser}
         initialValues={editingUser}

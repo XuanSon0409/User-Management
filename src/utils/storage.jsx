@@ -15,24 +15,31 @@ export const addUserToStorage = (user) => {
     saveUsersToStorage(users);
 };
 
+/**
+ * Xóa user theo ID. Trả về true nếu thành công, false nếu không tồn tại.
+ */
 export const deleteUserFromStorage = (userId) => {
     const users = getUsersFromStorage();
     const exists = users.some((u) => u.id === userId);
 
     if (!exists) {
-        throw new Error("User ID not found");
+        return false;
     }
 
     const updatedUsers = users.filter((u) => u.id !== userId);
     saveUsersToStorage(updatedUsers);
+    return true;
 };
 
+/**
+ * Cập nhật thông tin user. Trả về true nếu thành công, false nếu không tồn tại.
+ */
 export const updateUserInStorage = (updatedUser) => {
     const users = getUsersFromStorage();
     const exists = users.some((u) => u.id === updatedUser.id);
 
     if (!exists) {
-        throw new Error("User ID not found");
+        return false;
     }
 
     const updatedUsers = users.map((u) =>
@@ -40,5 +47,5 @@ export const updateUserInStorage = (updatedUser) => {
     );
 
     saveUsersToStorage(updatedUsers);
+    return true;
 };
-
